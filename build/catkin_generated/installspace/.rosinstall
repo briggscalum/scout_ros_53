@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /root/Docker/scout_ros_53/install/setup.sh

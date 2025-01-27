@@ -1,0 +1,2 @@
+/usr/bin/ar qc /root/Docker/scout_ros_53/devel/lib/libscout_messenger.a  CMakeFiles/scout_messenger.dir/src/scout_messenger.cpp.o
+/usr/bin/ranlib /root/Docker/scout_ros_53/devel/lib/libscout_messenger.a

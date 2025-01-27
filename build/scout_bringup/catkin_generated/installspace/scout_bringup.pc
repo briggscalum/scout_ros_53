@@ -1,0 +1,8 @@
+prefix=/root/Docker/scout_ros_53/install
+
+Name: scout_bringup
+Description: Description of scout_bringup
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

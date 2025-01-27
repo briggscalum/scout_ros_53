@@ -1,0 +1,8 @@
+prefix=/root/Docker/scout_ros_53/install
+
+Name: scout_description
+Description: Description of scout_description
+Version: 0.4.2
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

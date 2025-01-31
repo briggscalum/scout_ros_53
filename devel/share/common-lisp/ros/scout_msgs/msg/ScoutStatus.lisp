@@ -22,6 +22,11 @@
     :initarg :angular_velocity
     :type cl:float
     :initform 0.0)
+   (lateral_velocity
+    :reader lateral_velocity
+    :initarg :lateral_velocity
+    :type cl:float
+    :initform 0.0)
    (base_state
     :reader base_state
     :initarg :base_state
@@ -91,6 +96,11 @@
 (cl:defmethod angular_velocity-val ((m <ScoutStatus>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader scout_msgs-msg:angular_velocity-val is deprecated.  Use scout_msgs-msg:angular_velocity instead.")
   (angular_velocity m))
+
+(cl:ensure-generic-function 'lateral_velocity-val :lambda-list '(m))
+(cl:defmethod lateral_velocity-val ((m <ScoutStatus>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader scout_msgs-msg:lateral_velocity-val is deprecated.  Use scout_msgs-msg:lateral_velocity instead.")
+  (lateral_velocity m))
 
 (cl:ensure-generic-function 'base_state-val :lambda-list '(m))
 (cl:defmethod base_state-val ((m <ScoutStatus>))
@@ -175,6 +185,15 @@
     (cl:write-byte (cl:ldb (cl:byte 8 40) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 48) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 56) bits) ostream))
+  (cl:let ((bits (roslisp-utils:encode-double-float-bits (cl:slot-value msg 'lateral_velocity))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 32) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 40) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 48) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 56) bits) ostream))
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'base_state)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'control_mode)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'fault_code)) ostream)
@@ -219,6 +238,16 @@
       (cl:setf (cl:ldb (cl:byte 8 48) bits) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 56) bits) (cl:read-byte istream))
     (cl:setf (cl:slot-value msg 'angular_velocity) (roslisp-utils:decode-double-float-bits bits)))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 32) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 40) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 48) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 56) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'lateral_velocity) (roslisp-utils:decode-double-float-bits bits)))
     (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'base_state)) (cl:read-byte istream))
     (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'control_mode)) (cl:read-byte istream))
     (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'fault_code)) (cl:read-byte istream))
@@ -256,19 +285,20 @@
   "scout_msgs/ScoutStatus")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<ScoutStatus>)))
   "Returns md5sum for a message object of type '<ScoutStatus>"
-  "fe7c152a612083fcabc7d3de8ac6a67a")
+  "63a9fbcabc5f3e7cb432c5d09ca662be")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'ScoutStatus)))
   "Returns md5sum for a message object of type 'ScoutStatus"
-  "fe7c152a612083fcabc7d3de8ac6a67a")
+  "63a9fbcabc5f3e7cb432c5d09ca662be")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<ScoutStatus>)))
   "Returns full string definition for message of type '<ScoutStatus>"
-  (cl:format cl:nil "Header header~%~%int8 MOTOR_ID_FRONT_RIGHT = 0~%int8 MOTOR_ID_FRONT_LEFT = 1~%int8 MOTOR_ID_REAR_RIGHT = 2~%int8 MOTOR_ID_REAR_LEFT = 3~%~%int8 LIGHT_ID_FRONT = 0~%int8 LIGHT_ID_REAR = 1~%~%# motion state~%float64 linear_velocity~%float64 angular_velocity~%~%# base state~%uint8 base_state~%uint8 control_mode~%uint16 fault_code~%float64 battery_voltage~%~%# motor state~%ScoutMotorState[4] motor_states~%# driver state~%ScoutDriverState[4] driver_states~%~%# light state~%bool light_control_enabled~%ScoutLightState front_light_state~%ScoutLightState rear_light_state~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%string frame_id~%~%================================================================================~%MSG: scout_msgs/ScoutMotorState~%float64 current~%float64 rpm~%float64 temperature~%float64 motor_pose~%~%================================================================================~%MSG: scout_msgs/ScoutDriverState~%float64 driver_voltage~%float64 driver_temperature~%uint8   driver_state~%~%================================================================================~%MSG: scout_msgs/ScoutLightState~%uint8 mode~%uint8 custom_value~%~%"))
+  (cl:format cl:nil "Header header~%~%int8 MOTOR_ID_FRONT_RIGHT = 0~%int8 MOTOR_ID_FRONT_LEFT = 1~%int8 MOTOR_ID_REAR_RIGHT = 2~%int8 MOTOR_ID_REAR_LEFT = 3~%~%int8 LIGHT_ID_FRONT = 0~%int8 LIGHT_ID_REAR = 1~%~%# motion state~%float64 linear_velocity~%float64 angular_velocity~%float64 lateral_velocity~%~%# base state~%uint8 base_state~%uint8 control_mode~%uint16 fault_code~%float64 battery_voltage~%~%# motor state~%ScoutMotorState[4] motor_states~%# driver state~%ScoutDriverState[4] driver_states~%~%# light state~%bool light_control_enabled~%ScoutLightState front_light_state~%ScoutLightState rear_light_state~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%string frame_id~%~%================================================================================~%MSG: scout_msgs/ScoutMotorState~%float64 current~%float64 rpm~%float64 temperature~%float64 motor_pose~%~%================================================================================~%MSG: scout_msgs/ScoutDriverState~%float64 driver_voltage~%float64 driver_temperature~%uint8   driver_state~%~%================================================================================~%MSG: scout_msgs/ScoutLightState~%uint8 mode~%uint8 custom_value~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'ScoutStatus)))
   "Returns full string definition for message of type 'ScoutStatus"
-  (cl:format cl:nil "Header header~%~%int8 MOTOR_ID_FRONT_RIGHT = 0~%int8 MOTOR_ID_FRONT_LEFT = 1~%int8 MOTOR_ID_REAR_RIGHT = 2~%int8 MOTOR_ID_REAR_LEFT = 3~%~%int8 LIGHT_ID_FRONT = 0~%int8 LIGHT_ID_REAR = 1~%~%# motion state~%float64 linear_velocity~%float64 angular_velocity~%~%# base state~%uint8 base_state~%uint8 control_mode~%uint16 fault_code~%float64 battery_voltage~%~%# motor state~%ScoutMotorState[4] motor_states~%# driver state~%ScoutDriverState[4] driver_states~%~%# light state~%bool light_control_enabled~%ScoutLightState front_light_state~%ScoutLightState rear_light_state~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%string frame_id~%~%================================================================================~%MSG: scout_msgs/ScoutMotorState~%float64 current~%float64 rpm~%float64 temperature~%float64 motor_pose~%~%================================================================================~%MSG: scout_msgs/ScoutDriverState~%float64 driver_voltage~%float64 driver_temperature~%uint8   driver_state~%~%================================================================================~%MSG: scout_msgs/ScoutLightState~%uint8 mode~%uint8 custom_value~%~%"))
+  (cl:format cl:nil "Header header~%~%int8 MOTOR_ID_FRONT_RIGHT = 0~%int8 MOTOR_ID_FRONT_LEFT = 1~%int8 MOTOR_ID_REAR_RIGHT = 2~%int8 MOTOR_ID_REAR_LEFT = 3~%~%int8 LIGHT_ID_FRONT = 0~%int8 LIGHT_ID_REAR = 1~%~%# motion state~%float64 linear_velocity~%float64 angular_velocity~%float64 lateral_velocity~%~%# base state~%uint8 base_state~%uint8 control_mode~%uint16 fault_code~%float64 battery_voltage~%~%# motor state~%ScoutMotorState[4] motor_states~%# driver state~%ScoutDriverState[4] driver_states~%~%# light state~%bool light_control_enabled~%ScoutLightState front_light_state~%ScoutLightState rear_light_state~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%string frame_id~%~%================================================================================~%MSG: scout_msgs/ScoutMotorState~%float64 current~%float64 rpm~%float64 temperature~%float64 motor_pose~%~%================================================================================~%MSG: scout_msgs/ScoutDriverState~%float64 driver_voltage~%float64 driver_temperature~%uint8   driver_state~%~%================================================================================~%MSG: scout_msgs/ScoutLightState~%uint8 mode~%uint8 custom_value~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <ScoutStatus>))
   (cl:+ 0
      (roslisp-msg-protocol:serialization-length (cl:slot-value msg 'header))
+     8
      8
      8
      1
@@ -287,6 +317,7 @@
     (cl:cons ':header (header msg))
     (cl:cons ':linear_velocity (linear_velocity msg))
     (cl:cons ':angular_velocity (angular_velocity msg))
+    (cl:cons ':lateral_velocity (lateral_velocity msg))
     (cl:cons ':base_state (base_state msg))
     (cl:cons ':control_mode (control_mode msg))
     (cl:cons ':fault_code (fault_code msg))

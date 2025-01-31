@@ -10,7 +10,7 @@ import scout_msgs.msg
 import std_msgs.msg
 
 class ScoutStatus(genpy.Message):
-  _md5sum = "fe7c152a612083fcabc7d3de8ac6a67a"
+  _md5sum = "63a9fbcabc5f3e7cb432c5d09ca662be"
   _type = "scout_msgs/ScoutStatus"
   _has_header = True  # flag to mark the presence of a Header object
   _full_text = """Header header
@@ -26,6 +26,7 @@ int8 LIGHT_ID_REAR = 1
 # motion state
 float64 linear_velocity
 float64 angular_velocity
+float64 lateral_velocity
 
 # base state
 uint8 base_state
@@ -84,8 +85,8 @@ uint8 custom_value"""
   LIGHT_ID_FRONT = 0
   LIGHT_ID_REAR = 1
 
-  __slots__ = ['header','linear_velocity','angular_velocity','base_state','control_mode','fault_code','battery_voltage','motor_states','driver_states','light_control_enabled','front_light_state','rear_light_state']
-  _slot_types = ['std_msgs/Header','float64','float64','uint8','uint8','uint16','float64','scout_msgs/ScoutMotorState[4]','scout_msgs/ScoutDriverState[4]','bool','scout_msgs/ScoutLightState','scout_msgs/ScoutLightState']
+  __slots__ = ['header','linear_velocity','angular_velocity','lateral_velocity','base_state','control_mode','fault_code','battery_voltage','motor_states','driver_states','light_control_enabled','front_light_state','rear_light_state']
+  _slot_types = ['std_msgs/Header','float64','float64','float64','uint8','uint8','uint16','float64','scout_msgs/ScoutMotorState[4]','scout_msgs/ScoutDriverState[4]','bool','scout_msgs/ScoutLightState','scout_msgs/ScoutLightState']
 
   def __init__(self, *args, **kwds):
     """
@@ -95,7 +96,7 @@ uint8 custom_value"""
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       header,linear_velocity,angular_velocity,base_state,control_mode,fault_code,battery_voltage,motor_states,driver_states,light_control_enabled,front_light_state,rear_light_state
+       header,linear_velocity,angular_velocity,lateral_velocity,base_state,control_mode,fault_code,battery_voltage,motor_states,driver_states,light_control_enabled,front_light_state,rear_light_state
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -110,6 +111,8 @@ uint8 custom_value"""
         self.linear_velocity = 0.
       if self.angular_velocity is None:
         self.angular_velocity = 0.
+      if self.lateral_velocity is None:
+        self.lateral_velocity = 0.
       if self.base_state is None:
         self.base_state = 0
       if self.control_mode is None:
@@ -132,6 +135,7 @@ uint8 custom_value"""
       self.header = std_msgs.msg.Header()
       self.linear_velocity = 0.
       self.angular_velocity = 0.
+      self.lateral_velocity = 0.
       self.base_state = 0
       self.control_mode = 0
       self.fault_code = 0
@@ -163,7 +167,7 @@ uint8 custom_value"""
         length = len(_x)
       buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
       _x = self
-      buff.write(_get_struct_2d2BHd().pack(_x.linear_velocity, _x.angular_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage))
+      buff.write(_get_struct_3d2BHd().pack(_x.linear_velocity, _x.angular_velocity, _x.lateral_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage))
       if len(self.motor_states) != 4:
         self._check_types(ValueError("Expecting %s items but found %s when writing '%s'" % (4, len(self.motor_states), 'self.motor_states')))
       for val1 in self.motor_states:
@@ -213,8 +217,8 @@ uint8 custom_value"""
         self.header.frame_id = str[start:end]
       _x = self
       start = end
-      end += 28
-      (_x.linear_velocity, _x.angular_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage,) = _get_struct_2d2BHd().unpack(str[start:end])
+      end += 36
+      (_x.linear_velocity, _x.angular_velocity, _x.lateral_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage,) = _get_struct_3d2BHd().unpack(str[start:end])
       self.motor_states = []
       for i in range(0, 4):
         val1 = scout_msgs.msg.ScoutMotorState()
@@ -257,7 +261,7 @@ uint8 custom_value"""
         length = len(_x)
       buff.write(struct.Struct('<I%ss'%length).pack(length, _x))
       _x = self
-      buff.write(_get_struct_2d2BHd().pack(_x.linear_velocity, _x.angular_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage))
+      buff.write(_get_struct_3d2BHd().pack(_x.linear_velocity, _x.angular_velocity, _x.lateral_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage))
       if len(self.motor_states) != 4:
         self._check_types(ValueError("Expecting %s items but found %s when writing '%s'" % (4, len(self.motor_states), 'self.motor_states')))
       for val1 in self.motor_states:
@@ -308,8 +312,8 @@ uint8 custom_value"""
         self.header.frame_id = str[start:end]
       _x = self
       start = end
-      end += 28
-      (_x.linear_velocity, _x.angular_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage,) = _get_struct_2d2BHd().unpack(str[start:end])
+      end += 36
+      (_x.linear_velocity, _x.angular_velocity, _x.lateral_velocity, _x.base_state, _x.control_mode, _x.fault_code, _x.battery_voltage,) = _get_struct_3d2BHd().unpack(str[start:end])
       self.motor_states = []
       for i in range(0, 4):
         val1 = scout_msgs.msg.ScoutMotorState()
@@ -339,12 +343,6 @@ _struct_I = genpy.struct_I
 def _get_struct_I():
     global _struct_I
     return _struct_I
-_struct_2d2BHd = None
-def _get_struct_2d2BHd():
-    global _struct_2d2BHd
-    if _struct_2d2BHd is None:
-        _struct_2d2BHd = struct.Struct("<2d2BHd")
-    return _struct_2d2BHd
 _struct_2dB = None
 def _get_struct_2dB():
     global _struct_2dB
@@ -357,6 +355,12 @@ def _get_struct_3I():
     if _struct_3I is None:
         _struct_3I = struct.Struct("<3I")
     return _struct_3I
+_struct_3d2BHd = None
+def _get_struct_3d2BHd():
+    global _struct_3d2BHd
+    if _struct_3d2BHd is None:
+        _struct_3d2BHd = struct.Struct("<3d2BHd")
+    return _struct_3d2BHd
 _struct_4d = None
 def _get_struct_4d():
     global _struct_4d

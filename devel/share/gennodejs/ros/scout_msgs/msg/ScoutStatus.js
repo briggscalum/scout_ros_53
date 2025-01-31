@@ -25,6 +25,7 @@ class ScoutStatus {
       this.header = null;
       this.linear_velocity = null;
       this.angular_velocity = null;
+      this.lateral_velocity = null;
       this.base_state = null;
       this.control_mode = null;
       this.fault_code = null;
@@ -53,6 +54,12 @@ class ScoutStatus {
       }
       else {
         this.angular_velocity = 0.0;
+      }
+      if (initObj.hasOwnProperty('lateral_velocity')) {
+        this.lateral_velocity = initObj.lateral_velocity
+      }
+      else {
+        this.lateral_velocity = 0.0;
       }
       if (initObj.hasOwnProperty('base_state')) {
         this.base_state = initObj.base_state
@@ -119,6 +126,8 @@ class ScoutStatus {
     bufferOffset = _serializer.float64(obj.linear_velocity, buffer, bufferOffset);
     // Serialize message field [angular_velocity]
     bufferOffset = _serializer.float64(obj.angular_velocity, buffer, bufferOffset);
+    // Serialize message field [lateral_velocity]
+    bufferOffset = _serializer.float64(obj.lateral_velocity, buffer, bufferOffset);
     // Serialize message field [base_state]
     bufferOffset = _serializer.uint8(obj.base_state, buffer, bufferOffset);
     // Serialize message field [control_mode]
@@ -162,6 +171,8 @@ class ScoutStatus {
     data.linear_velocity = _deserializer.float64(buffer, bufferOffset);
     // Deserialize message field [angular_velocity]
     data.angular_velocity = _deserializer.float64(buffer, bufferOffset);
+    // Deserialize message field [lateral_velocity]
+    data.lateral_velocity = _deserializer.float64(buffer, bufferOffset);
     // Deserialize message field [base_state]
     data.base_state = _deserializer.uint8(buffer, bufferOffset);
     // Deserialize message field [control_mode]
@@ -194,7 +205,7 @@ class ScoutStatus {
   static getMessageSize(object) {
     let length = 0;
     length += std_msgs.msg.Header.getMessageSize(object.header);
-    return length + 229;
+    return length + 237;
   }
 
   static datatype() {
@@ -204,7 +215,7 @@ class ScoutStatus {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'fe7c152a612083fcabc7d3de8ac6a67a';
+    return '63a9fbcabc5f3e7cb432c5d09ca662be';
   }
 
   static messageDefinition() {
@@ -223,6 +234,7 @@ class ScoutStatus {
     # motion state
     float64 linear_velocity
     float64 angular_velocity
+    float64 lateral_velocity
     
     # base state
     uint8 base_state
@@ -301,6 +313,13 @@ class ScoutStatus {
     }
     else {
       resolved.angular_velocity = 0.0
+    }
+
+    if (msg.lateral_velocity !== undefined) {
+      resolved.lateral_velocity = msg.lateral_velocity;
+    }
+    else {
+      resolved.lateral_velocity = 0.0
     }
 
     if (msg.base_state !== undefined) {

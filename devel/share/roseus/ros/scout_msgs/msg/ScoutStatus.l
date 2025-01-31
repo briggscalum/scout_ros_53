@@ -34,7 +34,7 @@
 (defconstant scout_msgs::ScoutStatus::*LIGHT_ID_REAR* 1)
 (defclass scout_msgs::ScoutStatus
   :super ros::object
-  :slots (_header _linear_velocity _angular_velocity _base_state _control_mode _fault_code _battery_voltage _motor_states _driver_states _light_control_enabled _front_light_state _rear_light_state ))
+  :slots (_header _linear_velocity _angular_velocity _lateral_velocity _base_state _control_mode _fault_code _battery_voltage _motor_states _driver_states _light_control_enabled _front_light_state _rear_light_state ))
 
 (defmethod scout_msgs::ScoutStatus
   (:init
@@ -42,6 +42,7 @@
     ((:header __header) (instance std_msgs::Header :init))
     ((:linear_velocity __linear_velocity) 0.0)
     ((:angular_velocity __angular_velocity) 0.0)
+    ((:lateral_velocity __lateral_velocity) 0.0)
     ((:base_state __base_state) 0)
     ((:control_mode __control_mode) 0)
     ((:fault_code __fault_code) 0)
@@ -56,6 +57,7 @@
    (setq _header __header)
    (setq _linear_velocity (float __linear_velocity))
    (setq _angular_velocity (float __angular_velocity))
+   (setq _lateral_velocity (float __lateral_velocity))
    (setq _base_state (round __base_state))
    (setq _control_mode (round __control_mode))
    (setq _fault_code (round __fault_code))
@@ -79,6 +81,9 @@
   (:angular_velocity
    (&optional __angular_velocity)
    (if __angular_velocity (setq _angular_velocity __angular_velocity)) _angular_velocity)
+  (:lateral_velocity
+   (&optional __lateral_velocity)
+   (if __lateral_velocity (setq _lateral_velocity __lateral_velocity)) _lateral_velocity)
   (:base_state
    (&optional __base_state)
    (if __base_state (setq _base_state __base_state)) _base_state)
@@ -131,6 +136,8 @@
     8
     ;; float64 _angular_velocity
     8
+    ;; float64 _lateral_velocity
+    8
     ;; uint8 _base_state
     1
     ;; uint8 _control_mode
@@ -160,6 +167,8 @@
        (sys::poke _linear_velocity (send s :buffer) (send s :count) :double) (incf (stream-count s) 8)
      ;; float64 _angular_velocity
        (sys::poke _angular_velocity (send s :buffer) (send s :count) :double) (incf (stream-count s) 8)
+     ;; float64 _lateral_velocity
+       (sys::poke _lateral_velocity (send s :buffer) (send s :count) :double) (incf (stream-count s) 8)
      ;; uint8 _base_state
        (write-byte _base_state s)
      ;; uint8 _control_mode
@@ -192,6 +201,8 @@
      (setq _linear_velocity (sys::peek buf ptr- :double)) (incf ptr- 8)
    ;; float64 _angular_velocity
      (setq _angular_velocity (sys::peek buf ptr- :double)) (incf ptr- 8)
+   ;; float64 _lateral_velocity
+     (setq _lateral_velocity (sys::peek buf ptr- :double)) (incf ptr- 8)
    ;; uint8 _base_state
      (setq _base_state (sys::peek buf ptr- :char)) (incf ptr- 1)
    ;; uint8 _control_mode
@@ -218,7 +229,7 @@
    self)
   )
 
-(setf (get scout_msgs::ScoutStatus :md5sum-) "fe7c152a612083fcabc7d3de8ac6a67a")
+(setf (get scout_msgs::ScoutStatus :md5sum-) "63a9fbcabc5f3e7cb432c5d09ca662be")
 (setf (get scout_msgs::ScoutStatus :datatype-) "scout_msgs/ScoutStatus")
 (setf (get scout_msgs::ScoutStatus :definition-)
       "Header header
@@ -234,6 +245,7 @@ int8 LIGHT_ID_REAR = 1
 # motion state
 float64 linear_velocity
 float64 angular_velocity
+float64 lateral_velocity
 
 # base state
 uint8 base_state
@@ -288,6 +300,6 @@ uint8 custom_value
 
 
 
-(provide :scout_msgs/ScoutStatus "fe7c152a612083fcabc7d3de8ac6a67a")
+(provide :scout_msgs/ScoutStatus "63a9fbcabc5f3e7cb432c5d09ca662be")
 
 

@@ -5,6 +5,8 @@
           LINEAR_VELOCITY
           ANGULAR_VELOCITY-VAL
           ANGULAR_VELOCITY
+          LATERAL_VELOCITY-VAL
+          LATERAL_VELOCITY
           BASE_STATE-VAL
           BASE_STATE
           CONTROL_MODE-VAL

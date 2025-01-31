@@ -32,6 +32,7 @@ struct ScoutStatus_
     : header()
     , linear_velocity(0.0)
     , angular_velocity(0.0)
+    , lateral_velocity(0.0)
     , base_state(0)
     , control_mode(0)
     , fault_code(0)
@@ -46,6 +47,7 @@ struct ScoutStatus_
     : header(_alloc)
     , linear_velocity(0.0)
     , angular_velocity(0.0)
+    , lateral_velocity(0.0)
     , base_state(0)
     , control_mode(0)
     , fault_code(0)
@@ -71,6 +73,9 @@ struct ScoutStatus_
 
    typedef double _angular_velocity_type;
   _angular_velocity_type angular_velocity;
+
+   typedef double _lateral_velocity_type;
+  _lateral_velocity_type lateral_velocity;
 
    typedef uint8_t _base_state_type;
   _base_state_type base_state;
@@ -171,6 +176,7 @@ bool operator==(const ::scout_msgs::ScoutStatus_<ContainerAllocator1> & lhs, con
   return lhs.header == rhs.header &&
     lhs.linear_velocity == rhs.linear_velocity &&
     lhs.angular_velocity == rhs.angular_velocity &&
+    lhs.lateral_velocity == rhs.lateral_velocity &&
     lhs.base_state == rhs.base_state &&
     lhs.control_mode == rhs.control_mode &&
     lhs.fault_code == rhs.fault_code &&
@@ -236,12 +242,12 @@ struct MD5Sum< ::scout_msgs::ScoutStatus_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "fe7c152a612083fcabc7d3de8ac6a67a";
+    return "63a9fbcabc5f3e7cb432c5d09ca662be";
   }
 
   static const char* value(const ::scout_msgs::ScoutStatus_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xfe7c152a612083fcULL;
-  static const uint64_t static_value2 = 0xabc7d3de8ac6a67aULL;
+  static const uint64_t static_value1 = 0x63a9fbcabc5f3e7cULL;
+  static const uint64_t static_value2 = 0xb432c5d09ca662beULL;
 };
 
 template<class ContainerAllocator>
@@ -273,6 +279,7 @@ struct Definition< ::scout_msgs::ScoutStatus_<ContainerAllocator> >
 "# motion state\n"
 "float64 linear_velocity\n"
 "float64 angular_velocity\n"
+"float64 lateral_velocity\n"
 "\n"
 "# base state\n"
 "uint8 base_state\n"
@@ -344,6 +351,7 @@ namespace serialization
       stream.next(m.header);
       stream.next(m.linear_velocity);
       stream.next(m.angular_velocity);
+      stream.next(m.lateral_velocity);
       stream.next(m.base_state);
       stream.next(m.control_mode);
       stream.next(m.fault_code);
@@ -378,6 +386,8 @@ struct Printer< ::scout_msgs::ScoutStatus_<ContainerAllocator> >
     Printer<double>::stream(s, indent + "  ", v.linear_velocity);
     s << indent << "angular_velocity: ";
     Printer<double>::stream(s, indent + "  ", v.angular_velocity);
+    s << indent << "lateral_velocity: ";
+    Printer<double>::stream(s, indent + "  ", v.lateral_velocity);
     s << indent << "base_state: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.base_state);
     s << indent << "control_mode: ";

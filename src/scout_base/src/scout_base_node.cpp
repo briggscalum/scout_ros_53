@@ -15,7 +15,6 @@ std::unique_ptr<ScoutRobot> robot;
 
 int main(int argc, char **argv) {
 
-  std::cout << "DEBUG: Start" << std::endl;
   ROS_DEBUG("DEBUG: Start");
   
   // setup ROS node
@@ -109,19 +108,17 @@ int main(int argc, char **argv) {
       ROS_INFO("Only CAN bus interface is supported for now");
     }
   }
-
   messenger.SetupSubscription();
-
+  
+  ROS_INFO("DEBUG: SetupSubscription() is running!");
   // publish robot state at 50Hz while listening to twist commands
   ros::Rate rate(50);
   while (ros::ok()) {
     if (!messenger.simulated_robot_) {
-
       messenger.PublishStateToROS();
 
     } else {
       double linear, angular;
-
       messenger.GetCurrentMotionCmdForSim(linear, angular);
 
       messenger.PublishSimStateToROS(linear, angular);

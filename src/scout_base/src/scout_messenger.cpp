@@ -37,6 +37,8 @@ namespace westonrobot
     // cmd subscriber
     motion_cmd_subscriber_ = nh_->subscribe<geometry_msgs::Twist>(
         ns+"/cmd_vel", 5, &ScoutROSMessenger::TwistCmdCallback, this);
+      std::cout << "DEBUG: Post Subscribe" << std::endl;
+
     light_cmd_subscriber_ = nh_->subscribe<scout_msgs::ScoutLightCmd>(
         ns+"/scout_light_control", 5, &ScoutROSMessenger::LightCmdCallback, this);
   }

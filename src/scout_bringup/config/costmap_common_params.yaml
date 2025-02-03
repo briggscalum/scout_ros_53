@@ -1,0 +1,6 @@
+obstacle_range: 0.0
+raytrace_range: 0.0
+footprint: [[-0.3, -0.3], [-0.3, 0.3], [0.3, 0.3], [0.3, -0.3]]
+
+# Remove or disable sensor-based layers
+plugins: []

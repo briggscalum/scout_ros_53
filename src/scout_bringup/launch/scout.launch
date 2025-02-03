@@ -3,7 +3,7 @@
     <!-- ARGUMENTS -->
     <!-- Scout Base Arguments -->
     <arg name="port_name" default="can0" />
-    <arg name="simulated_robot" default="true" />
+    <arg name="simulated_robot" default="false" />
     <arg name="robot_name" default="scout" />
     <arg name="odom_topic_name" default="odom" />
     <arg name="is_scout_mini" default="true" />

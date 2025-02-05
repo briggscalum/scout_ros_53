@@ -6,7 +6,7 @@ import numpy as np
 import math
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose, PoseStamped, PoseArray
-from tf.transformations import quaternion_from_euler
+from tf.transformations import quaternion_from_euler, euler_from_quaternion
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 class AprilTagNavigator:
@@ -81,7 +81,7 @@ class AprilTagNavigator:
         right_edge = np.linalg.norm(corners[2] - corners[1]) # Right side
 
         # Compute yaw using the difference in perceived depth
-        yaw_radians = np.arctan2(right_edge - left_edge, left_edge + right_edge)*6
+        yaw_radians = np.arctan2(right_edge - left_edge, left_edge + right_edge)*-6
         yaw_degrees = np.degrees(yaw_radians)
         return yaw_radians, yaw_degrees
 
@@ -132,8 +132,11 @@ class AprilTagNavigator:
                 new_pose.position.y = target_y
                 new_pose.position.z = 0.0
 
+                current_quaternion = self.robot_pose.pose.pose.orientation
 
-                quaternion = quaternion_from_euler(0, 0, yaw_radians)
+                current_angle = euler_from_quaternion([current_quaternion.x,current_quaternion.y,current_quaternion.z,current_quaternion.w])
+                print(current_angle)
+                quaternion = quaternion_from_euler(0, 0, yaw_radians+current_angle[2])
                 new_pose.orientation.x = quaternion[0]
                 new_pose.orientation.y = quaternion[1]
                 new_pose.orientation.z = quaternion[2]

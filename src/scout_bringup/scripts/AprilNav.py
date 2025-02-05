@@ -3,8 +3,9 @@ import rospy
 import cv2
 import apriltag
 import numpy as np
+import math
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped, PoseArray
 from tf.transformations import quaternion_from_euler
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -15,7 +16,9 @@ class AprilTagNavigator:
 
         # Create a publisher for the navigation goal
         self.goal_pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
-        self.odom_sub = rospy.Subscriber('/odom', Odometry, self.odom_callback)
+        self.path_pub = rospy.Publisher('/scout_path', PoseArray, queue_size=10)
+
+        self.odom_sub = rospy.Subscriber('/scout/odom', Odometry, self.odom_callback)
 
         # Initialize the camera (OpenCV)
         self.cap = cv2.VideoCapture(2)
@@ -41,6 +44,21 @@ class AprilTagNavigator:
         self.robot_y = 0
         self.robot_theta = 0
 
+        self.pose_array = PoseArray()
+        self.pose_array.header.frame_id = "odom" 
+        self.pose_array.header.stamp = rospy.Time.now()
+
+
+        self.current_goal = PoseStamped()
+        self.robot_pose  = PoseStamped()
+
+    def pose_distance(self, pose1, pose2):
+        """Computes the Euclidean distance between two PoseStamped messages."""
+        x1 = pose1.position.x 
+        y1 = pose1.position.y
+        x2 = pose2.position.x
+        y2 = pose2.position.y
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def quaternion_to_euler(self, q):
         """ Converts a quaternion to Euler angles (roll, pitch, yaw) """
@@ -50,6 +68,7 @@ class AprilTagNavigator:
 
     def odom_callback(self, msg):
         """ Updates the robot's current position from /odom """
+        self.robot_pose = msg
         self.robot_x = msg.pose.pose.position.x
         self.robot_y = msg.pose.pose.position.y
         orientation = msg.pose.pose.orientation
@@ -108,23 +127,38 @@ class AprilTagNavigator:
                 # rospy.loginfo("Detected AprilTag ID {}: Pitch = {:.2f} degrees".format(detection.tag_id, yaw_degrees))
     
                 # Publish goal
-                goal_pose = PoseStamped()
-                goal_pose.header.stamp = rospy.Time.now()
-                goal_pose.header.frame_id = "odom"
-                goal_pose.pose.position.x = target_x
-                goal_pose.pose.position.y = target_y
-                goal_pose.pose.position.z = 0.0
+                new_pose = Pose()
+                new_pose.position.x = target_x
+                new_pose.position.y = target_y
+                new_pose.position.z = 0.0
 
 
                 quaternion = quaternion_from_euler(0, 0, yaw_radians)
-                goal_pose.pose.orientation.x = quaternion[0]
-                goal_pose.pose.orientation.y = quaternion[1]
-                goal_pose.pose.orientation.z = quaternion[2]
-                goal_pose.pose.orientation.w = quaternion[3]
+                new_pose.orientation.x = quaternion[0]
+                new_pose.orientation.y = quaternion[1]
+                new_pose.orientation.z = quaternion[2]
+                new_pose.orientation.w = quaternion[3]
 
-                self.goal_pub.publish(goal_pose)   
+                
+                
 
-                rospy.loginfo("Navigating to AprilTag ID {}: x={:.2f}, y={:.2f}".format(tag_id, target_x, target_y))
+
+                if not self.pose_array.poses or self.pose_distance(new_pose, self.pose_array.poses[-1]) > 0.2:
+                    self.pose_array.poses.append(new_pose)
+
+                if self.pose_array.poses:
+                    if(self.current_goal.pose.position.x == 0 or self.pose_distance(self.robot_pose.pose.pose , self.current_goal.pose) < 0.1):
+                        # print(self.pose_distance(self.robot_pose.pose , self.pose_array.poses[0]) )
+                        new_goal = PoseStamped()
+                        new_goal.pose = self.pose_array.poses.pop(0) 
+                        new_goal.header.stamp = rospy.Time.now()
+                        new_goal.header.frame_id = "odom"
+                        self.current_goal = new_goal
+
+                self.goal_pub.publish(self.current_goal)  
+                self.path_pub.publish(self.pose_array)
+                
+                # rospy.loginfo("Navigating to AprilTag ID {}: x={:.2f}, y={:.2f}".format(tag_id, target_x, target_y))
 
 
                 # Draw detections on the frame

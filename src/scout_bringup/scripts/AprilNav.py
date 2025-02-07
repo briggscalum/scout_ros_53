@@ -39,6 +39,7 @@ class AprilTagNavigator:
         self.FOCAL_LENGTH = 600  # Pixels
         self.TAG_SIZE = 0.16  # Meters
 
+        self.newGoalReady = False
         # Robot pose (updated from /odom)
         self.robot_x = 0
         self.robot_y = 0
@@ -81,14 +82,15 @@ class AprilTagNavigator:
         right_edge = np.linalg.norm(corners[2] - corners[1]) # Right side
 
         # Compute yaw using the difference in perceived depth
-        yaw_radians = np.arctan2(right_edge - left_edge, left_edge + right_edge)*-6
+        yaw_radians = np.arctan2(right_edge - left_edge, left_edge + right_edge)*6
         yaw_degrees = np.degrees(yaw_radians)
         return yaw_radians, yaw_degrees
 
     def get_angle_to_tag(self, detection):
         distance = self.estimate_distance(detection)
         center = detection.center
-        angle = np.arctan2((((300-center[0])/400)/distance), distance)
+        angle = np.arctan2((((300-center[0])/2000)/distance), distance)
+        # print(np.degrees(angle))
         return(angle)
 
 
@@ -100,7 +102,8 @@ class AprilTagNavigator:
     def detect_tags(self):
         while not rospy.is_shutdown():
             # Read a frame from the camera
-            ret, frame = self.cap.read()
+            ret, flipped_frame = self.cap.read()
+            frame = cv2.flip(flipped_frame, -1)
             if not ret:
                 rospy.logwarn("Error: Could not read frame.")
                 continue
@@ -110,6 +113,21 @@ class AprilTagNavigator:
 
             # Detect AprilTags in the frame
             detections = self.detector.detect(gray_frame)
+
+
+            if self.pose_array.poses:
+                if(self.current_goal.pose.position.x == 0 or (self.pose_distance(self.robot_pose.pose.pose , self.current_goal.pose) < 0.1)):
+                    # print(self.pose_distance(self.robot_pose.pose , self.pose_array.poses[0]) )
+                    new_goal = PoseStamped()
+                    new_goal.pose = self.pose_array.poses.pop(0) 
+                    new_goal.header.stamp = rospy.Time.now()
+                    new_goal.header.frame_id = "odom"
+                    self.current_goal = new_goal
+                    self.newGoalReady = True
+            if(self.current_goal.pose.position.x and self.newGoalReady):
+                self.goal_pub.publish(self.current_goal)  
+                self.path_pub.publish(self.pose_array)
+                self.newGoalReady = False
 
             for detection in detections:
 
@@ -135,7 +153,6 @@ class AprilTagNavigator:
                 current_quaternion = self.robot_pose.pose.pose.orientation
 
                 current_angle = euler_from_quaternion([current_quaternion.x,current_quaternion.y,current_quaternion.z,current_quaternion.w])
-                print(current_angle)
                 quaternion = quaternion_from_euler(0, 0, yaw_radians+current_angle[2])
                 new_pose.orientation.x = quaternion[0]
                 new_pose.orientation.y = quaternion[1]
@@ -148,18 +165,11 @@ class AprilTagNavigator:
 
                 if not self.pose_array.poses or self.pose_distance(new_pose, self.pose_array.poses[-1]) > 0.2:
                     self.pose_array.poses.append(new_pose)
+                
 
-                if self.pose_array.poses:
-                    if(self.current_goal.pose.position.x == 0 or self.pose_distance(self.robot_pose.pose.pose , self.current_goal.pose) < 0.1):
-                        # print(self.pose_distance(self.robot_pose.pose , self.pose_array.poses[0]) )
-                        new_goal = PoseStamped()
-                        new_goal.pose = self.pose_array.poses.pop(0) 
-                        new_goal.header.stamp = rospy.Time.now()
-                        new_goal.header.frame_id = "odom"
-                        self.current_goal = new_goal
 
-                self.goal_pub.publish(self.current_goal)  
-                self.path_pub.publish(self.pose_array)
+
+
                 
                 # rospy.loginfo("Navigating to AprilTag ID {}: x={:.2f}, y={:.2f}".format(tag_id, target_x, target_y))
 
@@ -184,5 +194,8 @@ if __name__ == '__main__':
     try:
         node = AprilTagNavigator()
         node.detect_tags()
+
+
+
     except rospy.ROSInterruptException:
         pass

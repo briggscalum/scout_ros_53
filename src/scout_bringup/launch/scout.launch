@@ -1,9 +1,12 @@
 <?xml version="1.0" ?>
 <launch>
+    
+    <param  name="robot_description"  command="$(find xacro)/xacro $(find scout_description)/urdf/scout_mini.xacro" />
+
     <!-- ARGUMENTS -->
     <!-- Scout Base Arguments -->
     <arg name="port_name" default="can0" />
-    <arg name="simulated_robot" default="false" />
+    <arg name="simulated_robot" default="true" />
     <arg name="robot_name" default="scout" />
     <arg name="odom_topic_name" default="odom" />
     <arg name="is_scout_mini" default="true" />
@@ -15,7 +18,7 @@
     <arg name="robot_state_pub_enabled" default="true" />
 
     <!-- RVIZ Arguments -->
-    <arg name="rviz_on" default="false" />
+    <arg name="rviz_on" default="true" />
     <arg name="rviz_config" default="scout" />
 
 
@@ -45,5 +48,14 @@
 
     <!-- Launch visualization - only if the rviz_on parameter is set to true -->
     <node name="rviz"  pkg="rviz"  type="rviz"  args="-d $(find scout_description)/rviz/$(arg rviz_config).rviz" if="$(eval arg('rviz_on')==true)" />
+
+    <node pkg="move_base" type="move_base" name="move_base" output="screen">
+        <rosparam file="$(find scout_bringup)/config/costmap_common_params.yaml" command="load"/>
+        <rosparam file="$(find scout_bringup)/config/local_costmap_params.yaml" command="load"/>
+        <rosparam file="$(find scout_bringup)/config/global_costmap_params.yaml" command="load"/>
+        <rosparam file="$(find scout_bringup)/config/base_local_planner_params.yaml" command="load"/>
+
+        <remap from="/cmd_vel" to="/scout/cmd_vel"/>
+    </node>
 
 </launch>
